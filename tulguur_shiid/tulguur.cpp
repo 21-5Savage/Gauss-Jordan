@@ -31,14 +31,16 @@ void init(vector<vector<float>>& A, vector<vector<float>>& x, const string& file
             file >> A[i][j];
         }
     }
-
+    x.assign(n + 1, vector <float>(m + 1));
+    x[0] = {0, -1, -2, -3, -2};
+    x[1][0] = 1;
+    x[2][0] = 2;
+    x[3][0] = 3;
+    x[4][0] = -1;
     file.close();
 }
 
-
-
-
-void transformer(vector<vector<float>>& A, int r, int s) {
+void transformer(vector<vector<float>>& A, vector<vector<float>>& x, int r, int s) {
     int n = A.size();
     if (n == 0 || A[0].empty()) return;
     int m = A[0].size();
@@ -69,17 +71,30 @@ void transformer(vector<vector<float>>& A, int r, int s) {
     }
 
     A[r][s] = pivot;
+
+    for (int j = 1; j <= m; j++) {
+        x[r + 1][j] = 1;
+    }
+
+    for (int i = 1; i <= n; i++) {
+        x[i][s + 1] = 1;
+    }
+    x[r + 1][s + 1] = 2;
+    swap(x[r + 1][0],x[0][s + 1]);
 }
 
 bool check(vector<vector<float>>& x, int r, int s){
-    for(int k = 1; k <= 3; k++){
-        if(x[k][s + 1] == 2){
-            return false;
-        }
-    }
+    int n = x.size();
+    int m = x[0].size();
     if(x[r + 1][s + 1] == 0){
         return true;
     }
+    for(int k = 1; k < n; k++){
+        if(x[k][s + 1] > 0){
+            return false;
+        }
+    }
+    
     return false;
 }
 
@@ -99,16 +114,16 @@ int bagana_songoh(vector<vector<float>>& A) {
         }
     }
 
-    if (row == -1) 
+    if (row == -1) {
         return -1;
+    }
 
-    for (int j = 0; j < m; ++j) {
+    for (int j = 0; j < lastColIndex - 1; ++j) {
         if (A[row][j] < 0) {
             return j; 
         }
     }
-
-    return -1;
+    return -2;
 }
 int mur_songoh(vector<vector<float>>& A, int bagana) {
     int n = A.size();
@@ -137,24 +152,36 @@ void wrapper(vector<vector<float>>& A, vector<vector<float>>& x){
     init(A, x, "B.txt", n, m);
     cout << "Eh matrix:\n";
     printMatrix(A);
-    int bagana, mur;
+    int bagana, mur, counter = 1;
 
-    while (bagana != -1 || mur != -1){
+    while (true){
         bagana = bagana_songoh(A);
     
-        if(bagana == -1){
-            cout << "sul gishuud bugd surug bish\n";
+        if (bagana == -1) {
+            cout << "sul gishuud bugd surug bish\ntulguur shiid :\n";
+            for (int i = 0; i < n - 1; i++) {
+                if (x[i + 1][0] < 0)
+                    cout << "x_" << -1 * x[i + 1][0] << " = " << A[i][A[0].size() - 1] << "\n"; 
+            }
+            for (int i = 0; i < m - 1; i++){
+                if(x[0][i + 1] < 0)
+                    cout << "x_" << -1 * x[0][i + 1] << " = " << 0 << "\n";
+            }
+            cout << "Hyzgaariin function-ii utga : " << A[A.size() - 1][A[0].size() - 1] << "\n";
             return;
         }
         mur = mur_songoh(A, bagana);
-        if(mur == -1){
+        if(mur == -1 || bagana == -2){
             cout << "niitsgui\n";
             return;
         }
-
-        transformer(A, mur, bagana);
-
+        if (check(x, mur, bagana)){
+            
+        }
+        transformer(A, x, mur, bagana);
+        cout << "#" << counter++ << "\n";
         printMatrix(A);
+        //printMatrix(x);
     }
 
 }
