@@ -30,13 +30,13 @@ void init(vector<vector<float>>& A, vector<vector<float>>& x, const string& file
     x.resize(rows + 1, vector<float>(cols, 0));
     
     x[0][0] = -1;
-    for (int j = 1; j < cols; ++j) {
+    for (int j = 1; j < cols; j++) {
         x[0][j] = -1;
     }
     
-    for (int i = 0; i < rows; ++i) {
+    for (int i = 0; i < rows; i++) {
         file >> x[i + 1][0];
-        for (int j = 0; j < cols - 1; ++j) {
+        for (int j = 0; j < cols - 1; j++) {
             file >> A[i][j];
             A[i][j] = -A[i][j];
         }
@@ -92,7 +92,7 @@ bool check(vector<vector<float>>& x, int r, int s){
 
 void wrapper(vector<vector<float>>& A, vector<vector<float>>& x){
     int r,s,n,m;
-    init(A, x, "A1.txt");
+    init(A, x, "A.txt");
     cout << "Eh matrix:\n";
     printMatrix(A);
     int counter = 1;
