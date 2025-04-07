@@ -16,7 +16,13 @@ void printMatrix(const vector<vector<float>>& A) {
     for (int i = 0; i < rows; ++i) {
         for (int j = 0; j < cols; ++j) {
             if (i == 0 && j > 0 && A[i][j] != 0) {
-                cout << "-x_" << (int)A[i][j] * -1 << "\t";
+                if(A[i][j] > 0){
+                    cout << "y_" << (int)A[i][j] << "\t";
+                }
+                else{
+                    cout << "-x_" << (int)A[i][j] * -1 << "\t";
+                }
+                
             } 
             else if (j == 0 && i > 0) {
                 if (A[i][j] > 0) {
@@ -26,11 +32,11 @@ void printMatrix(const vector<vector<float>>& A) {
                     cout << "x_" << (int)A[i][j] * -1 << "\t";
                 } 
                 else {
-                    cout << A[i][j] << "\t";
+                    cout << fixed << setprecision(2) << A[i][j] << "\t";
                 }
             } 
             else {
-                cout << A[i][j] << "\t";
+                cout << fixed << setprecision(2) << A[i][j] << "\t";
             }
         }
         cout << "\n";
@@ -53,39 +59,6 @@ void equation(const vector<vector<float>>& A, const vector<vector<float>>& x) {
         }
         cout << " = x" << i << "\t\tx" << i << " = " << sum << "\n";
     }
-}
-
-void init(vector<vector<float>>& A, vector<vector<float>>& x, const string& filename, int& n, int& m) {  
-    ifstream file(filename);
-    if (!file) {
-        cerr << "Error opening file." << "\n";
-        return;
-    }
-    
-    file >> n >> m; 
-
-    x.assign(n, vector<float>(m));
-
-    for (int i = 0; i < n; ++i) {
-        for (int j = 0; j < m; ++j) {  
-            file >> x[i][j];
-        }
-    }
-    A.assign(n -1, vector<float>(m - 1));
-
-    for (int i = 0; i < n - 1; ++i) {
-        for (int j = 0; j < m - 1; ++j) {  
-            A[i][j] = x[i + 1][j + 1];
-        }
-    }
-    for (int i = 1; i < n; ++i) {
-        for (int j = 1; j < m; ++j) {
-            x[i][j] = 0;
-        }
-    }
-    n--;
-    m--;
-    file.close();
 }
 
 void transformer(vector<vector<float>>& A, vector<vector<float>>& x, int r, int s) {
@@ -159,7 +132,6 @@ void copy_matrix_to_x(vector<vector<float>>& A, vector<vector<float>>& x) {
     }
 }
 
-
 void eliminate_columns(std::vector<std::vector<float>>& x) {
     int rows = x.size();
     int cols = x[0].size();
@@ -215,7 +187,6 @@ int bagana_songoh(vector<vector<float>>& A) {
     return -2;
 }
 
-
 int mur_songoh(vector<vector<float>>& A, int bagana) {
     int n = A.size();
     if (n == 0 || A[0].empty())
@@ -262,83 +233,42 @@ void prep(vector<vector<float>> &A, vector<vector<float>> &x){
     }
     cout << "Simplex huvirgalt duussan\n";
 }
-void wrapper(vector<vector<float>>& A, vector<vector<float>>& x){
-    int r,s,n,m;
-    vector <vector<float>> buffer;
-    init(A, x, "t1.txt", n, m);
 
+int simplex_ratio(const vector<vector<float>>& A, int bagana) {
+    int min_row = -1;
+    float min_ratio = numeric_limits<float>::max();
+    int num_rows = A.size();
+    int last_col = A[0].size() - 1;
 
-    cout << "Eh matrix:\n";
-    buffer = x;
-    copy_matrix_to_x(A, buffer);
-    eliminate_columns(buffer);
-    printMatrix(buffer);
+    for (int i = 1; i < num_rows - 1; ++i) {
+        float denominator = A[i][bagana];
+        float constant = A[i][last_col];
 
-    prep(A,x);
-
-    cout << "Eh simplex matrix:\n";
-    buffer = x;
-    copy_matrix_to_x(A, buffer);
-    eliminate_columns(buffer);
-    printMatrix(buffer);
-
-    
-    int bagana, mur, counter = 1;
-    
-    while (true){
-        
-        // printMatrix(x);
-        // cout << "\n";
-        bagana = bagana_songoh(A);
-    
-        if (bagana == -1) {
-            cout << "sul gishuud bugd surug bish\ntulguur shiid :\n";
-            //printMatrix(x);
-            for (int i = 0; i < n - 1; i++) {
-                if (x[i + 1][0] < 0){
-                    cout << "x_" << (int)(-1 * x[i + 1][0]) << " = " << A[i][A[0].size() - 1]; 
-                    for(int j = 0; j < m - 1; j++){
-                        if(x[0][j + 1] < 0 && x[i + 1][0] < 0){
-                            cout << " + " << "(" << -1 * A[i][j] << ") * " << "x_" << (int)(-1 * x[0][j + 1]);
-                        }
-                    }
-                    cout << "\n";
-                }
+        if (denominator > 0) {
+            float ratio = constant / denominator;
+            if (ratio < min_ratio) {
+                min_ratio = ratio;
+                min_row = i;
             }
-            for (int i = 0; i < m - 1; i++){
-                if(x[0][i + 1] < 0){
-                    for(int j = 0; j < n -1; j++){
-                        cout << "x_" << (int)(-1 * x[0][i + 1]) << " = " << 0 << "\n";
-                        break;
-                    }
-                }
-            }
-            cout << "Hyzgaariin function-ii utga : " << A[A.size() - 1][A[0].size() - 1] << "\n";
-            return;
         }
-        mur = mur_songoh(A, bagana);
-        if(mur == -1 || bagana == -2){
-            cout << "niitsgui\n";
-            return;
-        }
-
-        if(A[mur][bagana] != 0)
-            transformer(A, x, mur, bagana);
-        cout << "huvirgalt #" << counter++ << "\n";
-
-        vector < vector <float>> buffer = x;
-        copy_matrix_to_x(A, buffer);
-        printMatrix(buffer);
-        
     }
 
+    return min_row;
 }
-int main() {
-    vector<vector<float>> mat, x;
-    wrapper(mat,x);
-    //printMatrix(x);
-    // cout << "\nsystemuud\n";
-    // equation(mat,x);
 
-    return 0;
+
+void slice_matrix(const vector<vector<float>>& A, vector<vector<float>>& B) {
+    int n = A.size();        // total rows
+    int m = A[0].size();     // total columns
+
+    // Resize B to (n - 1) rows and (m - 1) columns
+    B.resize(n - 1);
+
+    for (int i = 1; i < n; ++i) {
+        B[i - 1].resize(m - 1);  // Resize each row of B
+        for (int j = 1; j < m; ++j) {
+            B[i - 1][j - 1] = A[i][j];  // Copy elements excluding the first column and row
+        }
+    }
 }
+
