@@ -6,6 +6,7 @@
 #include <cfloat>
 #include <sstream>
 #include <iomanip>
+
 #include "functions.cpp"
 using namespace std;
 
@@ -42,10 +43,10 @@ void init(vector<vector<float>>& A, vector<vector<float>>& x, const string& file
     file.close();
 }
 
-vector<vector<float>> wrapper(vector<vector<float>>& A, vector<vector<float>>& x){
+vector<vector<float>> wrapper(vector<vector<float>>& A, vector<vector<float>>& x, string dir){
     int r,s,n,m;
     vector <vector<float>> buffer;
-    init(A, x, "t1.txt", n, m);
+    init(A, x, dir, n, m);
 
 
     cout << "Eh matrix:\n";
@@ -99,14 +100,14 @@ vector<vector<float>> wrapper(vector<vector<float>>& A, vector<vector<float>>& x
         }
         mur = mur_songoh(A, bagana);
         if(mur == -1 || bagana == -2){
-            cout << "niitsgui\n";
+            //cout << "niitsgui\n";
             slice_matrix(buffer, A);
             return buffer;
         }
 
         if(A[mur][bagana] != 0)
             transformer(A, x, mur, bagana);
-        cout << "huvirgalt #" << counter++ << "\n";
+        cout << "tulguur shiid oloh huvirgalt #" << counter++ << "\n";
 
         vector < vector <float>> buffer = x;
         copy_matrix_to_x(A, buffer);
@@ -137,11 +138,14 @@ int maximize(const vector<vector<float>>& A, int& bagana, int& mur) {
             }
         }
     }
-    if(optimal_found)
-        cout << "Onovchtoi shiid oldson\n";
+    if(optimal_found){
+        cout << "Onovchtoi shiid oldson\n\n";
+        return 0;
+    }
+        
     if(niitsgui && !optimal_found)
-        cout << "Niitsgui\n";
-    return 0;  
+        cout << "Deereesee zaaglagdaagui\n";
+    return -1;  
 }
 
 int minimize(const vector<vector<float>>& A, int& bagana, int& mur) {
@@ -164,44 +168,100 @@ int minimize(const vector<vector<float>>& A, int& bagana, int& mur) {
         }
     }
 
-    if(optimal_found)
-        cout << "Onovchtoi shiid oldson\n";
-    if(niitsgui && !optimal_found)
-        cout << "Niitsgui\n";
-    return 0; 
+    if(optimal_found){
+        cout << "Onovchtoi shiid oldson\n\n";
+        return 0; 
+    }
+    else if(niitsgui && !optimal_found){
+        cout << "Hariu dooroosoo zaaglagdaagui\n";
+        return -1;
+    }
+        
+    
 }
 
 
-void final(vector<vector<float>>& A, vector<vector<float>>& x){
+void final(vector<vector<float>>& A, vector<vector<float>>& x, string dir){
+
+    cout << "Max : 1, Min : 0\n";
+    int max = 0;
+    cin >> max;
+
+    vector<vector<float>> t = wrapper(A, x, dir);
+    eliminate_columns(x);
+
     vector<vector<float>> B = x;
     copy_matrix_to_x(A,B);
     int n = B.size();
     int m = B[0].size();
-    int max = 0;
     int bagana, mur;
-    
-    cout << "Max : 1, Min : 0\n";
-    cin >> max;
+    int counter = 1;
+    int looper;
     if(max == 1){
-        while(maximize(B, bagana, mur) == 1){
-            cout << "bagana : "<< bagana << "\nmur : " << mur <<"\n";
-            cout << "pivot : " << B[mur][bagana] << "\n";
+        looper = maximize(B, bagana, mur);
+        while(looper){
+            // cout << "bagana : "<< bagana << "\nmur : " << mur <<"\n";
+            // cout << "pivot : " << B[mur][bagana] << "\n";
             slice_matrix(B, A);
             transformer(A,x, mur - 1, bagana - 1);
             B = x;
             copy_matrix_to_x(A,B);
+            cout << "onovchtoi shiid oloh huvirgalt #" << counter++ << "\n";
             printMatrix(B);
+            looper = maximize(B, bagana, mur);
+        }
+        if(looper == 0){
+            for (int i = 0; i < B.size() - 1; i++) {
+                if (x[i + 1][0] < 0){
+                    cout << "x_" << (int)(-1 * x[i + 1][0]) << " = " << A[i][A[0].size() - 1]; 
+                    for(int j = 0; j < B[0].size() - 1; j++){
+                        if(x[0][j + 1] < 0 && x[i + 1][0] < 0){
+                            // cout << " + " << "(" << -1 * A[i][j] << ") * " << "x_" << (int)(-1 * x[0][j + 1]);
+                        }
+                    }
+                    cout << "\n";
+                }
+            }
+
+            cout << "Maximum utga = " << B[B.size() - 1][B[0].size() - 1] << "\n";
         }
     }
     else{
-        while(minimize(B, bagana, mur) == 1){
-            cout << "bagana : "<< bagana << "\nmur : " << mur <<"\n";
-            cout << "pivot : " << B[mur][bagana] << "\n";
+        looper = minimize(B, bagana, mur); 
+        while(looper){
+            // cout << "bagana : "<< bagana << "\nmur : " << mur <<"\n";
+            // cout << "pivot : " << B[mur][bagana] << "\n";
             slice_matrix(B, A);
             transformer(A,x, mur - 1, bagana - 1);
             B = x;
             copy_matrix_to_x(A,B);
+            cout << "onovchtoi shiid oloh huvirgalt #" << counter++ << "\n";
             printMatrix(B);
+            looper = minimize(B, bagana, mur);
+        }
+        if(looper == 0){
+            for (int i = 0; i < B.size() - 1; i++) {
+                if (x[i + 1][0] < 0){
+                    cout << "x_" << (int)(-1 * x[i + 1][0]) << " = " << A[i][A[0].size() - 1]; 
+                    for(int j = 0; j < B[0].size() - 1; j++){
+                        if(x[0][j + 1] < 0 && x[i + 1][0] < 0){
+                            // cout << " + " << "(" << -1 * A[i][j] << ") * " << "x_" << (int)(-1 * x[0][j + 1]);
+                        }
+                    }
+                    cout << "\n";
+                }
+                if (x[i + 1][0] > 0){
+                    cout << "y_" << (int)(-1 * x[i + 1][0]) << " = " << A[i][A[0].size() - 1]; 
+                    for(int j = 0; j < B[0].size() - 1; j++){
+                        if(x[0][j + 1] < 0 && x[i + 1][0] < 0){
+                            // cout << " + " << "(" << -1 * A[i][j] << ") * " << "x_" << (int)(-1 * x[0][j + 1]);
+                        }
+                    }
+                    cout << "\n";
+                }
+            }
+
+            cout << "Minimum utga = " << B[B.size() - 1][B[0].size() - 1] << "\n";
         }
     }
     cout << "\n";
@@ -210,9 +270,7 @@ void final(vector<vector<float>>& A, vector<vector<float>>& x){
 
 int main() {
     vector<vector<float>> A, x, buffer;
-    buffer = wrapper(A,x);
-    eliminate_columns(x);
-    final(A,x);
+    final(A,x, "test3.txt");
     //printMatrix(x);
     // cout << "\nsystemuud\n";
     // equation(mat,x);

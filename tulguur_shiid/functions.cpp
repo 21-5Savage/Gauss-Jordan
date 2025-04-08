@@ -72,8 +72,7 @@ void transformer(vector<vector<float>>& A, vector<vector<float>>& x, int r, int 
     }
 
     float pivot = 1.0 / A[r][s];
-    cout << "\nPivot: " << A[r][s] << "  [" << r << "][" << s << "], Urvuu: " << pivot << "\n";
-
+    cout << "\nPivot: " << A[r][s] << "  [" << r << "][" << s << "], Urvuu: " << pivot << "\n\n";
     for (int i = 0; i < n; i++) {
         for (int j = 0; j < m; j++) {
             if (i != r && j != s) {
@@ -198,7 +197,7 @@ int mur_songoh(vector<vector<float>>& A, int bagana) {
     float minRatio = FLT_MAX; 
 
     for (int i = 0; i < n - 1; ++i) {
-        if (A[i][bagana] > 0 && A[i][lastColIndex] > 0) {
+        if ((A[i][bagana] > 0 && A[i][lastColIndex] > 0) || (A[i][bagana] < 0 && A[i][lastColIndex] <= 0)) {
             float ratio = A[i][lastColIndex] / A[i][bagana];
             if (ratio < minRatio) {
                 minRatio = ratio;
@@ -213,8 +212,9 @@ int mur_songoh(vector<vector<float>>& A, int bagana) {
 void prep(vector<vector<float>> &A, vector<vector<float>> &x){
     int n = A.size();
     int m = A[0].size();
+    int counter = 1;
     vector <vector<float>> buffer;
-    for(int i = 0; i < n; i++){
+    for(int i = 0; i < n - 1; i++){
         if(x[i + 1][0] == 0){
             //cout << "zero detected fixing [" << i+1 << "]\n"; 
             for(int j = 0; j < m; j++){
@@ -225,13 +225,14 @@ void prep(vector<vector<float>> &A, vector<vector<float>> &x){
                         transformer(A, x, i, j);
                     buffer = x;
                     copy_matrix_to_x(A, buffer);
-                    // printMatrix(buffer);
+                    cout << "simplex bolgoh huvirgalt #" << counter++ << "\n";
+                    printMatrix(buffer);
                     break;
                 }
             }
         }
     }
-    cout << "Simplex huvirgalt duussan\n";
+    cout << "Simplex huvirgalt duussan\n\n";
 }
 
 int simplex_ratio(const vector<vector<float>>& A, int bagana) {
@@ -252,10 +253,8 @@ int simplex_ratio(const vector<vector<float>>& A, int bagana) {
             }
         }
     }
-
     return min_row;
 }
-
 
 void slice_matrix(const vector<vector<float>>& A, vector<vector<float>>& B) {
     int n = A.size();        // total rows
