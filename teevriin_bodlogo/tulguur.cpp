@@ -240,7 +240,7 @@ void iterate(vector<vector<float>> &A, vector<vector<float>> &allocated){
     }
     //zardliin unelgeenuudiig harah bol
     cout<<"zarldiin unelgeenuud\n";
-    print_matrix(solution);
+    print_matrix(remove_zeros(solution));
     auto [x,y] = find_max_negative(solution, A);
     //cout << x << "\t" << y << "\t" << solution[x][y] << "\n";
 
@@ -281,7 +281,11 @@ void base_solution(vector<vector<float>> &A){
         i++;
     }
     if(supply_sum == 0 || demand_sum == 0){
-        cout << "tulguur shiid oldson\nNiit zardal : " << compute_total(A, allocated) << "\n";
+        cout << "Tulguur shiid oldson\n";
+        // print_matrix(A);
+        cout << "Huvaaarilasan achaanuud\n";
+        print_matrix(allocated);
+        cout << "Niit zardal : " << compute_total(A, allocated) << "\n";
     }
 }
 

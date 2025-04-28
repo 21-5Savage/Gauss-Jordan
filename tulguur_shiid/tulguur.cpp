@@ -265,7 +265,7 @@ void prep(vector<vector<float>> &A, vector<vector<float>> &x){
 void wrapper(vector<vector<float>>& A, vector<vector<float>>& x){
     int r,s,n,m;
     vector <vector<float>> buffer;
-    init(A, x, "t1.txt", n, m);
+    init(A, x, "test.txt", n, m);
 
 
     cout << "Eh matrix:\n";
